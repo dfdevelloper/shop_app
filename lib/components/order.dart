@@ -16,6 +16,7 @@ class _OrderWidgetState extends State<OrderWidget> {
 
   @override
   Widget build(BuildContext context) {
+    print('product ${widget.order.id}');
     return Card(
       child: Column(children: <Widget>[
         ListTile(

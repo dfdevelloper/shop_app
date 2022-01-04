@@ -33,7 +33,7 @@ class ProductList with ChangeNotifier {
 
   Future<void> loadProducts() async {
     final response = await http.get(Uri.parse('${Constants.PRODUCT_BASE_URL}.json'));
-    if (response.body == 'null') return;
+    if (response.statusCode >= 400) return;
     Map<String, dynamic> data = jsonDecode(response.body);
     _items = [];
     data.forEach((key, value) {
