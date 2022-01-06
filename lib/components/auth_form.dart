@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shop_app/exceptions/auth_excepetion.dart';
+import 'package:shop_app/models/auth.dart';
 
 enum AuthMode { Login, Signup }
 
@@ -14,19 +17,42 @@ class AuthFormState extends State<AuthForm> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
-  void _submit() {
+  void _showErrorDialog(String msg) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Ocorreu um Erro'),
+        content: Text(msg),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Fechar'),
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submit() async {
     final isValid = _formKey.currentState?.validate() ?? false;
 
-    if(!isValid) return;
+    if (!isValid) return;
 
     setState(() => _isLoading = true);
 
     _formKey.currentState?.save();
 
-    if(_isLogin()){
-      // login
-    }else{
-      // registrar
+    Auth _auth = Provider.of(context, listen: false);
+
+    final authMethod = _isLogin() ? _auth.login : _auth.signup;
+
+    try {
+      await authMethod(
+        _formData['email']!,
+        _formData['password']!,
+      );
+    } on AuthException catch (e) {
+      _showErrorDialog(e.toString());
     }
 
     setState(() => _isLoading = false);

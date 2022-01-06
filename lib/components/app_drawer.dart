@@ -22,7 +22,7 @@ class AppDrawer extends StatelessWidget {
               'Loja',
             ),
             onTap: () => Navigator.of(context).pushReplacementNamed(
-              AppRoutes.HOME,
+              AppRoutes.AUTH_OR_HOME,
             ),
           ),
           Divider(),
