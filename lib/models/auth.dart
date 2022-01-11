@@ -61,7 +61,7 @@ class Auth with ChangeNotifier {
     } else {
       _token = body['idToken'];
       _email = body['email'];
-      _userId = body['uid'];
+      _userId = body['localId'];
       _expiryDate = DateTime.now().add(
         Duration(seconds: int.parse(body['expiresIn'])),
       );
@@ -91,7 +91,7 @@ class Auth with ChangeNotifier {
 
     _token = userData['token'];
     _email = userData['email'];
-    _userId = userData['uid'];
+    _userId = userData['userId'];
     _expiryDate = expiryDate;
 
     _autoLogout();
@@ -103,7 +103,7 @@ class Auth with ChangeNotifier {
     _email = null;
     _userId = null;
     _expiryDate = null;
-    Store.remove('userdata').then((_) {
+    Store.remove('userData').then((_) {
       notifyListeners();
     });
   }

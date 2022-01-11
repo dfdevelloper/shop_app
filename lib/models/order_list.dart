@@ -29,9 +29,9 @@ class OrderList with ChangeNotifier {
   Future<void> loadOrders() async {
     _clearItems();
     final response = await http
-        .get(Uri.parse('${Constants.ORDER_BASE_URL}.json?auth=$_token'));
+        .get(Uri.parse('${Constants.ORDER_BASE_URL}/$_userId.json?auth=$_token'));
 
-    if (response.body == "null") return;
+    if (response.body == "null"|| response.statusCode >= 400) return;
 
     Map<String, dynamic> data = json.decode(response.body);
 
@@ -59,6 +59,7 @@ class OrderList with ChangeNotifier {
   }
 
   Future<void> addOrder(Cart cart) async {
+    print('userId $_userId');
     final date = DateTime.now();
     print('tentando adicionar');
     try {
