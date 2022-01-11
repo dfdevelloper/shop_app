@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -9,7 +8,11 @@ import 'package:shop_app/models/order.dart';
 import 'package:shop_app/utils/constants.dart';
 
 class OrderList with ChangeNotifier {
+  String _token;
+  String _userId;
   List<Order> _items = [];
+
+  OrderList([this._token = '', this._items = const [], this._userId = '']);
 
   List<Order> get items {
     return [..._items];
@@ -25,8 +28,8 @@ class OrderList with ChangeNotifier {
 
   Future<void> loadOrders() async {
     _clearItems();
-    final response =
-        await http.get(Uri.parse('${Constants.ORDER_BASE_URL}.json'));
+    final response = await http
+        .get(Uri.parse('${Constants.ORDER_BASE_URL}.json?auth=$_token'));
 
     if (response.body == "null") return;
 
@@ -51,6 +54,7 @@ class OrderList with ChangeNotifier {
       );
     });
 
+    _items = _items.reversed.toList();
     notifyListeners();
   }
 
@@ -59,7 +63,7 @@ class OrderList with ChangeNotifier {
     print('tentando adicionar');
     try {
       final response = await http.post(
-        Uri.parse('${Constants.ORDER_BASE_URL}.json'),
+        Uri.parse('${Constants.ORDER_BASE_URL}/$_userId.json?auth=$_token'),
         body: json.encode(
           {
             "total": cart.totalAmount,

@@ -9,6 +9,10 @@ import 'package:shop_app/utils/constants.dart';
 
 class ProductList with ChangeNotifier {
   List<Product> _items = [];
+  String _token;
+  String _userId;
+
+  ProductList([this._token = '', this._items = const [], this._userId = '']);
 
   List<Product> get items => [..._items];
   List<Product> get favoriteItems =>
@@ -32,25 +36,38 @@ class ProductList with ChangeNotifier {
   }
 
   Future<void> loadProducts() async {
-    final response = await http.get(Uri.parse('${Constants.PRODUCT_BASE_URL}.json'));
+    print('vai carregar $_token');
+    final response = await http
+        .get(Uri.parse('${Constants.PRODUCT_BASE_URL}.json?auth=$_token'));
     if (response.statusCode >= 400) return;
+
+    final favResponse = await http.get(Uri.parse(
+        '${Constants.FAVORITES_BASE_URL}/$_userId.json?auth=$_token'));
+
+    Map<String, dynamic> favData =
+        favResponse.body == 'null' ? {} : jsonDecode(favResponse.body);
+
     Map<String, dynamic> data = jsonDecode(response.body);
     _items = [];
     data.forEach((key, value) {
-      _items.add(Product(
-        id: key,
-        name: value['name'],
-        description: value['description'],
-        price: value['price'],
-        imageUrl: value['imageUrl'],
-        isFavorite: value['isFavorite'],
-      ));
+      final isFavorite = favData[key] ?? false;
+
+      _items.add(
+        Product(
+          id: key,
+          name: value['name'],
+          description: value['description'],
+          price: value['price'],
+          imageUrl: value['imageUrl'],
+          isFavorite: isFavorite
+        ),
+      );
     });
   }
 
   Future<void> addProduct(Product product) async {
     final response = await http.post(
-      Uri.parse('${Constants.PRODUCT_BASE_URL}.json'),
+      Uri.parse('${Constants.PRODUCT_BASE_URL}.json?auth=$_token'),
       body: json.encode({
         "name": product.name,
         "description": product.description,
@@ -78,7 +95,8 @@ class ProductList with ChangeNotifier {
     if (idx >= 0) {
       _items[idx] = product;
       await http.patch(
-        Uri.parse('${Constants.PRODUCT_BASE_URL}/${product.id}.json'),
+        Uri.parse(
+            '${Constants.PRODUCT_BASE_URL}/${product.id}.json?auth=$_token'),
         body: json.encode({
           "name": product.name,
           "description": product.description,
@@ -91,7 +109,8 @@ class ProductList with ChangeNotifier {
   }
 
   Future<void> removeProduct(String productId) async {
-    final response = await http.delete(Uri.parse('${Constants.PRODUCT_BASE_URL}/$productId.json'));
+    final response = await http.delete(Uri.parse(
+        '${Constants.PRODUCT_BASE_URL}/$productId.json?auth=$_token'));
 
     if (response.statusCode >= 400) {
       throw HttpException(
