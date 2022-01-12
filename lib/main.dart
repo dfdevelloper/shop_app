@@ -12,6 +12,7 @@ import 'package:shop_app/pages/product_detail_page.dart';
 import 'package:shop_app/pages/product_form_page.dart';
 import 'package:shop_app/pages/product_page.dart';
 import 'package:shop_app/utils/app_routes.dart';
+import 'package:shop_app/utils/custom_route.dart';
 
 void main() {
   runApp(MyApp());
@@ -39,7 +40,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<Auth, OrderList>(
           create: (_) => OrderList(),
           update: (ctx, auth, previous) {
-            return OrderList(auth.token ?? '', previous?.items ?? [], auth.userId ?? '');
+            return OrderList(
+                auth.token ?? '', previous?.items ?? [], auth.userId ?? '');
           },
         )
       ],
@@ -50,6 +52,12 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.purple,
           accentColor: Colors.deepOrange,
           fontFamily: 'Lato',
+          pageTransitionsTheme: PageTransitionsTheme(
+            builders: {
+              TargetPlatform.iOS: CustomPageTransitionBuilder(),
+              TargetPlatform.android: CustomPageTransitionBuilder()
+            },
+          ),
         ),
         routes: {
           AppRoutes.AUTH_OR_HOME: (ctx) => AuthOrHomePage(),

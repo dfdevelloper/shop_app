@@ -12,63 +12,68 @@ class OrderWidget extends StatefulWidget {
 }
 
 class _OrderWidgetState extends State<OrderWidget> {
-  bool expanded = false;
+  bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
-    print('product ${widget.order.id}');
-    return Card(
-      child: Column(children: <Widget>[
-        ListTile(
-          title: Text('R\$ ${widget.order.total.toStringAsFixed(2)}'),
-          subtitle: Text(
-            DateFormat('dd/MM/yyyy hh:mm').format(widget.order.date),
-          ),
-          trailing: IconButton(
-            icon: Icon(Icons.expand_more),
-            onPressed: () => {
-              setState(() {
-                expanded = !expanded;
-              })
-            },
-          ),
-        ),
-        if (expanded)
-          Container(
-            height: (widget.order.products.length * 25) + 10,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 15,
-              vertical: 4,
+    double itemsHeight = (widget.order.products.length * 25) + 10;
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      height: _expanded ? itemsHeight + 80 : 80,
+      child: Card(
+        child: Column(children: <Widget>[
+          ListTile(
+            title: Text('R\$ ${widget.order.total.toStringAsFixed(2)}'),
+            subtitle: Text(
+              DateFormat('dd/MM/yyyy hh:mm').format(widget.order.date),
             ),
-            child: ListView(
-                children: widget.order.products
-                    .map((product) => Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 3,
-                          ),
-                          child: Row(
-                            children: <Widget>[
-                              Text(
-                                '${product.name}',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
+            trailing: IconButton(
+              icon: Icon(Icons.expand_more),
+              onPressed: () => {
+                setState(() {
+                  _expanded = !_expanded;
+                })
+              },
+            ),
+          ),
+          
+            AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              height: _expanded ? itemsHeight : 0,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 15,
+                vertical: 4,
+              ),
+              child: ListView(
+                  children: widget.order.products
+                      .map((product) => Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 3,
+                            ),
+                            child: Row(
+                              children: <Widget>[
+                                Text(
+                                  '${product.name}',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              Spacer(),
-                              Text(
-                                '${product.quantity}x R\$ ${product.price}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              )
-                            ],
-                          ),
-                        ))
-                    .toList()),
-          )
-      ]),
+                                Spacer(),
+                                Text(
+                                  '${product.quantity}x R\$ ${product.price}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ))
+                      .toList()),
+            )
+        ]),
+      ),
     );
   }
 }
