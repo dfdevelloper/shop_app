@@ -39,6 +39,8 @@ class AuthFormState extends State<AuthForm>
   }
 
   Future<void> _submit() async {
+    final v = _formKey.currentState?.validate();
+
     final isValid = _formKey.currentState?.validate() ?? false;
 
     if (!isValid) return;
@@ -76,7 +78,7 @@ class AuthFormState extends State<AuthForm>
   }
 
   bool _isLogin() => _authMode == AuthMode.Login;
-  // bool _isSignup() => _authMode == AuthMode.Signup;
+  bool _isSignup() => _authMode == AuthMode.Signup;
 
   @override
   void initState() {
@@ -132,7 +134,7 @@ class AuthFormState extends State<AuthForm>
               TextFormField(
                 decoration: InputDecoration(labelText: 'Email'),
                 keyboardType: TextInputType.emailAddress,
-                onSaved: (value) => _formData['email'] = value ?? '',
+                onSaved: (value) => _formData['email'] = value?.trim() ?? '',
                 validator: (value) {
                   final email = value ?? '';
                   if (email.isEmpty) return 'Informe um email';
@@ -147,32 +149,34 @@ class AuthFormState extends State<AuthForm>
                 onSaved: (value) => _formData['password'] = value ?? '',
                 controller: _passwordFieldController,
               ),
-              AnimatedContainer(
-                constraints: BoxConstraints(
-                  minHeight: _isLogin() ? 0 : 60,
-                  maxHeight: _isLogin() ? 0 : 120,
-                ),
-                duration: Duration(milliseconds: 300),
-                curve: Curves.linear,
-                child: FadeTransition(
-                  opacity: _opacityAnimation!,
-                  child: SlideTransition(
-                    position: _slideAnimation!,
-                    child: TextFormField(
-                      decoration: InputDecoration(labelText: 'Confirmar senha'),
-                      keyboardType: TextInputType.text,
-                      obscureText: true,
-                      validator: (value) {
-                        final password = value ?? '';
-                        if (password != _passwordFieldController.text)
-                          return 'As senhas não conhecidem';
-                        if (password.isEmpty) return 'Confirme a senha';
-                        return null;
-                      },
+              if (_isSignup())
+                AnimatedContainer(
+                  constraints: BoxConstraints(
+                    minHeight: _isLogin() ? 0 : 60,
+                    maxHeight: _isLogin() ? 0 : 120,
+                  ),
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.linear,
+                  child: FadeTransition(
+                    opacity: _opacityAnimation!,
+                    child: SlideTransition(
+                      position: _slideAnimation!,
+                      child: TextFormField(
+                        decoration:
+                            InputDecoration(labelText: 'Confirmar senha'),
+                        keyboardType: TextInputType.text,
+                        obscureText: true,
+                        validator: (value) {
+                          final password = value ?? '';
+                          if (password != _passwordFieldController.text)
+                            return 'As senhas não conhecidem';
+                          if (password.isEmpty) return 'Confirme a senha';
+                          return null;
+                        },
+                      ),
                     ),
                   ),
                 ),
-              ),
               SizedBox(
                 height: 40,
               ),
